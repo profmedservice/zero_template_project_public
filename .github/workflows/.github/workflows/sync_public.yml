@@ -1,0 +1,26 @@
+name: Sync Public Mirror
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync-public-mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Filter files for public mirror
+        run: |
+          rm -rf .git .github .env secrets* *.key logs/private passport/private
+
+      - name: Push to public mirror
+        env:
+          PUBLIC_TOKEN: ${{ secrets.PUBLIC_TOKEN }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote add public-mirror https://github.com/profmedservice/zero_template_project_public.git
+          git push --force "https://${PUBLIC_TOKEN}@github.com/profmedservice/zero_template_project_public.git" main
